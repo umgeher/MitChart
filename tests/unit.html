@@ -1,0 +1,79 @@
+<html>
+  <head>
+    <title>Unit Tests</title>
+    <script type="text/javascript" src="screw-unit/lib/jquery-1.2.6.js"></script>
+    <script type="text/javascript" src="screw-unit/lib/jquery.fn.js"></script>
+    <script type="text/javascript" src="screw-unit/lib/jquery.print.js"></script>
+    <script type="text/javascript" src="screw-unit/lib/screw.builder.js"></script>
+    <script type="text/javascript" src="screw-unit/lib/screw.matchers.js"></script>
+    <script type="text/javascript" src="screw-unit/lib/screw.events.js"></script>
+    <script type="text/javascript" src="screw-unit/lib/screw.behaviors.js"></script>
+    <link rel="stylesheet" href="screw-unit/lib/screw.css">
+
+    <script type="text/javascript" src="../core/mitchart.js"></script>
+
+    <script type="text/javascript">
+      var chart = new Mitchart({
+        'target': 'chartTarget',
+        'type': 'line',
+        'data': {
+          'y': {
+            'label': 'months',
+            'values': ['jan','fev','mar','abr','mai','jun']
+          },
+          'x': {
+            'label': 'values',
+            'values': [1,2,3,4,5,6]
+           }
+        }
+      });
+
+      Screw.Unit(function() {
+          describe("testing data source getter", function(){
+              describe("testing getter", function(){
+                  it("chart type must be 'line'", function(){
+                      expect(chart.option['type']).to(equal, "line");
+                  });
+                  it("chart target must be 'chartTarget'", function(){
+                      expect(chart.option['target']).to(equal, "chartTarget");
+                  });
+                  it("yaxis label must be 'months'", function(){
+                      expect(chart.option['ylabel']).to(equal, "months");
+                  });
+                  it("xaxis label must be 'values'", function(){
+                      expect(chart.option['xlabel']).to(equal, "values");
+                  });
+                  it("yaxis values must be six first months", function(){
+                      expect(chart.option['yvalues']).to(equal, ['jan','fev','mar','abr','mai','jun']);
+                  });
+                  it("xaxis values must be 1,2,3,4,5,6", function(){
+                      expect(chart.option['xvalues']).to(equal, [1,2,3,4,5,6]);
+                  });
+              });
+          });
+      });
+
+    </script>
+
+  </head>
+  <body>
+    <pre>
+      Example:
+
+     var chart = new Mitchart({
+        'target': 'chartTarget',
+        'type': 'line',
+        'data': {
+          'y': {
+            'label': 'months',
+            'values': ['jan','fev','mar','abr','mai','jun']
+          },
+          'x': {
+            'label': 'values',
+            'values': [1,2,3,4,5,6]
+           }
+        }
+      });
+    </pre>
+  </body>
+</html>

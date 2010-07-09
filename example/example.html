@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <title>MitChart Example</title>
+    <script type="text/javascript" src="../core/mitchart.js"></script>
+    <script type="text/javascript">
+      var chart = new Mitchart({
+        'target': 'chartTarget',
+        'type': 'line',
+        'data': {
+          'y': {
+            'label': 'meses',
+            'data': ['jan','fev','mar','abr','mai','jun']
+          },
+          'x': {
+            'label': 'valores',
+            'values': [1,2,3,4,5,6]
+           }
+        }
+      });
+      //console.info(chart.option);
+      //chart.set('x','y');
+      //console.log(chart.option['x']);
+    </script>
+  </head>
+  <body>
+
+    <div id="chartTarget">&nbsp;</div>
+    
+  </body>
+</html>
