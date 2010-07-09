@@ -1,20 +1,20 @@
 Format and Usage:
 
 var chart = new Mitchart(
-			    {
-			        'target': 'div_target_id',
-				'type': 'chart_type',
-				'data': {
-				    'y': {
-				        'label': 'label_for_yaxys',
-					'values': ['jan','fev','mar','abr','mai','jun']
-				    },
-				    'x': {
-				        'label': 'label_for_xaxys',
-					'values': [5,2,3,7,1,3]
-				    }
-				}
-			    }
-			);
+                            {
+                                'target': 'div_target_id',
+                                'type': 'chart_type',
+                                'data': {
+                                    'y': {
+                                        'label': 'label_for_yaxys',
+                                        'values': ['jan','fev','mar','abr','mai','jun']
+                                    },
+                                    'x': {
+                                        'label': 'label_for_xaxys',
+                                        'values': [5,2,3,7,1,3]
+                                    }
+                                }
+                            }
+                        );
 
 chart.plot();

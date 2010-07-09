@@ -20,7 +20,8 @@ var Mitchart = function(data){
     },
     'lines': {
       'lineWidth': 2,
-      'lineColor': 'rgb(50, 50, 50)'
+      'lineColor': 'rgb(50, 50, 50)',
+      'ballFillColor': 'rgb(250, 250, 250)'
     },
     'labels': {
       'font': 'arial',
@@ -76,6 +77,7 @@ Mitchart.prototype = {
     return true;
   },
 
+  // return canvas context
   '__getCanvas__': function(){
     var canvas = document.getElementById(this.__get__('target') + '_canvas');
     context = canvas.getContext('2d');
@@ -83,6 +85,7 @@ Mitchart.prototype = {
     return context;
   },
 
+  // get the top value of list or lists
   '__getMaxValue__': function(){
     var data = this.__get__('yvalues');
     var max = 0;
@@ -201,24 +204,28 @@ Mitchart.prototype = {
     this.canvas.strokeStyle = color;
     this.__getMaxValue__();
     this.canvas.beginPath();
-    this.canvas.moveTo(
-    		       xbegin,
-    		       ybegin - (data[0] * 100) / stageHeight
-    		       );
     
-    for(var x = 1; x < data.length; x++){
+    for(var x = 0; x < data.length; x++){
       var value = (data[x] * stageHeight) / this.__getMaxValue__();
-      this.canvas.lineTo(
-			 xbegin + (x * ystep),
-			 ybegin - value
-			 );
+      if(x == 0){
+	this.canvas.moveTo(
+			   xbegin,
+			   ybegin - value
+			   );
+      } else {
+	
+	this.canvas.lineTo(
+			   xbegin + (x * ystep),
+			   ybegin - value
+			   );
+      }
     }
     
     this.canvas.stroke();
 
 
     // draw points
-    for(var x = 1; x < data.length; x++){
+    for(var x = 0; x < data.length; x++){
       var value = (data[x] * stageHeight) / this.__getMaxValue__();
       this.canvas.beginPath();
       this.canvas.arc(
@@ -226,7 +233,7 @@ Mitchart.prototype = {
 		      ybegin - value,
 		      3,0,Math.PI*2,true); // Outer circle  
       this.canvas.stroke(); 
-      this.canvas.fillStyle = 'white';
+      this.canvas.fillStyle = this.conf.lines.ballFillColor;
       this.canvas.fill();
       this.canvas.closePath;
     }
