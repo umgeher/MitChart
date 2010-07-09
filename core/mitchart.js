@@ -11,6 +11,26 @@ var Mitchart = function(data){
   //properties
   this.data = data;
   this.option = {};
+  this.canvas = null; // initiate a null object for canvas context
+  this.conf = {
+    'stage': {
+      'padding': 5,
+      'strokeColor': 'rgb(0, 0, 0)',
+      'strokeWidth': 1.7
+    },
+    'lines': {
+      'lineWidth': 2,
+      'lineColor': 'rgb(50, 50, 50)'
+    },
+    'labels': {
+      'font': 'arial',
+      'size': 12
+    },
+    'grid': {
+      'lineColor': 'rgb(30, 30, 30)',
+      'lineWidth': 0.1
+    }
+  };
 
   // get values from sorce
   this.__getValues__();
@@ -22,7 +42,14 @@ var Mitchart = function(data){
 Mitchart.prototype = {
   // plot method, print chart on screen
   'plot': function(){
-    // do something
+    // make the magic
+    this.__makeCanvas__();
+    this.canvas = this.__getCanvas__(); // get the canvas context to a object to make him global
+    this.__makeStage__();
+    this.__makeGrid__();
+    this.__makeChart__();
+
+    return true;
   },
 
   // getter method
@@ -43,6 +70,172 @@ Mitchart.prototype = {
     this.option['ylabel'] = this.__set__('ylabel', this.data['data']['y']['label']);
     this.option['xvalues'] = this.__set__('xvalues', this.data['data']['x']['values']);
     this.option['yvalues'] = this.__set__('yvalues', this.data['data']['y']['values']);
+    this.option['width'] = this.__set__('width', this.data['width']);
+    this.option['height'] = this.__set__('height', this.data['height']);
+
+    return true;
+  },
+
+  '__getCanvas__': function(){
+    var canvas = document.getElementById(this.__get__('target') + '_canvas');
+    context = canvas.getContext('2d');
+
+    return context;
+  },
+
+  '__getMaxValue__': function(){
+    var data = this.__get__('yvalues');
+    var max = 0;
+
+    for(var x = 0; x < data.length; x++){
+      if(data[x] > max){
+	max = data[x];
+      }
+    }
+    
+    return max;
+  },
+
+  // make the canvas element on placeholder
+  '__makeCanvas__': function(){
+    var newCanvas = document.createElement('canvas');
+    newCanvas.setAttribute('id', this.__get__('target') + '_canvas');
+    newCanvas.setAttribute('width', this.__get__('width'));
+    newCanvas.setAttribute('height', this.__get__('height'));
+
+    var target = document.getElementById(this.__get__('target'));
+    target.appendChild(newCanvas);
+
+    return true;
+  },
+
+  // make the stage for chart
+  '__makeStage__': function(){
+    this.canvas.strokeStyle = this.conf.stage.strokeColor;
+    this.canvas.lineWidth = this.conf.stage.strokeWidth;
+    this.canvas.strokeRect(
+			   this.conf.stage.padding,
+			   this.conf.stage.padding,
+			   (this.data['width'] - (this.conf.stage.padding * 2)),
+			   (this.data['height'] - (this.conf.stage.padding * 2))
+			   );
+
+    return true;
+  },
+
+  // make labels for chart
+  '__makeLabels__': function(){
+    return true;
+  },
+
+  // make a grid for chart
+  '__makeGrid__': function(){
+    var ybegin = this.__get__('height') - this.conf.stage.padding + (this.conf.grid.lineWidth / 2);
+    var xstep = (this.__get__('height') - (2 * this.conf.stage.padding)) / this.__get__('xvalues').length;
+
+    var xbegin = this.conf.stage.padding;
+    var ystep = (this.__get__('width') - (2 * this.conf.stage.padding)) / this.__get__('yvalues').length;
+    
+    this.canvas.lineWidth = this.conf.grid.lineWidth;
+    this.canvas.lineStyle = this.conf.grid.lineColor;
+    
+    // xgrid
+    for(var x = 0; x < this.__get__('xvalues').length + 1; x++){
+	this.canvas.beginPath();
+	this.canvas.moveTo(
+			   this.conf.stage.padding,
+			   ybegin - (x * xstep)
+			   );
+	this.canvas.lineTo(
+			   this.__get__('width') - this.conf.stage.padding,
+			   ybegin - (x * xstep)
+			   );
+	this.canvas.stroke();
+	this.canvas.closePath();
+    }
+    
+    // ygrid
+    for(var y = 0; y < this.__get__('yvalues').length + 1; y++){
+	this.canvas.beginPath();
+	this.canvas.moveTo(
+			   xbegin + (y * ystep),
+			   this.conf.stage.padding
+			   
+			   );
+	this.canvas.lineTo(
+			   xbegin + (y * ystep),
+			   this.__get__('height') - this.conf.stage.padding
+			   );
+	this.canvas.stroke();
+	this.canvas.closePath();
+	}
+
+    return true;
+  },
+
+  '__makeChart__': function(){
+    var type = this.__get__('type');
+    if(type == 'line'){
+      this.__makeLineChart__();
+    } 
+    else if(type == 'bar')
+      this.__makeBarChart__();
+    else {
+      this.__makeLineChart__();
+    }
+    
+    return true;
+  },
+
+  '__makeLineChart__': function(){
+    var data = this.__get__('yvalues');
+    var xbegin = this.conf.stage.padding;
+    var ybegin = this.__get__('height') - this.conf.stage.padding + (this.conf.grid.lineWidth / 2);
+    var ystep = (this.__get__('width') - (2 * this.conf.stage.padding)) / this.__get__('yvalues').length;
+    var stageHeight = this.__get__('height') - (2 * this.conf.stage.padding);
+    var color = 'rgb('+Math.floor(Math.random()*250)+','+Math.floor(Math.random()*250)+','+Math.floor(Math.random()*250)+')';
+    
+
+    // draw data line
+    this.canvas.lineWidth = this.conf.lines.lineWidth;
+    this.canvas.strokeStyle = color;
+    this.__getMaxValue__();
+    this.canvas.beginPath();
+    this.canvas.moveTo(
+    		       xbegin,
+    		       ybegin - (data[0] * 100) / stageHeight
+    		       );
+    
+    for(var x = 1; x < data.length; x++){
+      var value = (data[x] * stageHeight) / this.__getMaxValue__();
+      this.canvas.lineTo(
+			 xbegin + (x * ystep),
+			 ybegin - value
+			 );
+    }
+    
+    this.canvas.stroke();
+
+
+    // draw points
+    for(var x = 1; x < data.length; x++){
+      var value = (data[x] * stageHeight) / this.__getMaxValue__();
+      this.canvas.beginPath();
+      this.canvas.arc(
+		      xbegin + (x * ystep),
+		      ybegin - value,
+		      3,0,Math.PI*2,true); // Outer circle  
+      this.canvas.stroke(); 
+      this.canvas.fillStyle = 'white';
+      this.canvas.fill();
+      this.canvas.closePath;
+    }
+   
+    return true;
+  },
+
+  '__makeBarChart__': function(){
+    return true;
   }
   
 };

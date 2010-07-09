@@ -3,28 +3,30 @@
     <title>MitChart Example</title>
     <script type="text/javascript" src="../core/mitchart.js"></script>
     <script type="text/javascript">
+      window.onload = function(){
       var chart = new Mitchart({
         'target': 'chartTarget',
         'type': 'line',
+        'width': 300,
+        'height': 150,
         'data': {
-          'y': {
-            'label': 'meses',
-            'data': ['jan','fev','mar','abr','mai','jun']
-          },
           'x': {
+            'label': 'meses',
+            values: ['jan','fev','mar','abr','mai','jun']
+          },
+          'y': {
             'label': 'valores',
-            'values': [1,2,3,4,5,6]
+            'values': [2,3,1,5,3,2]
            }
         }
       });
-      //console.info(chart.option);
-      //chart.set('x','y');
-      //console.log(chart.option['x']);
+      chart.plot();
+};
     </script>
   </head>
   <body>
 
-    <div id="chartTarget">&nbsp;</div>
+    <div id="chartTarget"></div>
     
   </body>
 </html>
