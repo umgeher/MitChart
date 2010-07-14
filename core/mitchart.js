@@ -14,7 +14,7 @@ var Mitchart = function(data){
     this.canvas = null; // initiate a null object for canvas context
     this.conf = {
 	'stage': {
-	    'padding': 5,
+	    'padding': 15,
 	    'strokeColor': 'rgb(0, 0, 0)',
 	    'strokeWidth': 1.7
 	},
@@ -33,7 +33,7 @@ var Mitchart = function(data){
 	}
     };
 
-    // get values from sorce
+    // gets the values from source
     this.__getValues__();
 
     return true;
@@ -48,17 +48,8 @@ Mitchart.prototype = {
 	this.canvas = this.__getCanvas__(); // get the canvas context to a object to make him global
 	this.__makeStage__();
 	this.__makeGrid__();
+	this.__makeLabels__();
 	this.__makeChart__();
-	
-	canvas = document.getElementById(this.__get__('target') + '_canvas');
-
-	canvas.addEventListener("mousemove", 
-				function(e) { 
-				    console.log("x:"+(e.clientX-canvas.offsetLeft)
-					  +" y:"+(e.clientY-canvas.offsetTop)); 
-				}, false);
-	
-
 
 	return true;
     },
@@ -73,7 +64,7 @@ Mitchart.prototype = {
 	return this.option[arg] = value;
     },
 
-    // get values from class data source
+    // gets values from class data source
     '__getValues__': function(){
 	this.option['target'] = this.__set__('target', this.data['target']);
 	this.option['type'] = this.__set__('type', this.data['type']);
@@ -83,11 +74,15 @@ Mitchart.prototype = {
 	this.option['yvalues'] = this.__set__('yvalues', this.data['data']['y']['values']);
 	this.option['width'] = this.__set__('width', this.data['width']);
 	this.option['height'] = this.__set__('height', this.data['height']);
+	this.option['ystep'] = this.__set__('ystep', ((this.__get__('width') - (2 * this.conf.stage.padding)) / (this.__get__('yvalues').length - 1)));
+	this.option['xstep'] = this.__set__('xstep', (this.__get__('height') - (2 * this.conf.stage.padding)) / (this.__get__('xvalues').length - 1));
+	this.option['stageBottom'] = this.__get__('height') - this.conf.stage.padding + (this.conf.grid.lineWidth / 2);
+	this.option['stageLeft'] = this.conf.stage.padding;
 
 	return true;
     },
 
-    // return canvas context
+    // returns canvas context
     '__getCanvas__': function(){
 	var canvas = document.getElementById(this.__get__('target') + '_canvas');
 	var context = canvas.getContext('2d');
@@ -95,7 +90,7 @@ Mitchart.prototype = {
 	return context;
     },
 
-    // get the top value of list or lists
+    // gets the top value of list or lists
     '__getMaxValue__': function(){
 	var data = this.__get__('yvalues');
 	var max = 0;
@@ -109,7 +104,7 @@ Mitchart.prototype = {
 	return max;
     },
 
-    // make the canvas element on placeholder
+    // makes the canvas element on placeholder
     '__makeCanvas__': function(){
 	var newCanvas = document.createElement('canvas');
 	newCanvas.setAttribute('id', this.__get__('target') + '_canvas');
@@ -122,7 +117,7 @@ Mitchart.prototype = {
 	return true;
     },
 
-    // make the stage for chart
+    // makes the stage for chart
     '__makeStage__': function(){
 	this.canvas.strokeStyle = this.conf.stage.strokeColor;
 	this.canvas.lineWidth = this.conf.stage.strokeWidth;
@@ -136,19 +131,26 @@ Mitchart.prototype = {
 	return true;
     },
 
-    // make labels for chart
+    // makes labels for chart
     '__makeLabels__': function(){
+	this.canvas.fillStyle = 'rgb(0, 0, 0)';
+	this.canvas.textAlign = "center";
+	this.canvas.font = "12px arial";
+
+	// xlabels
+	for(var x = 0; x < this.__get__('xvalues').length; x++){
+	    this.canvas.fillText(
+		this.__get__('xvalues')[x],
+		this.__get__('stageLeft') + (x * this.__get__('ystep')),
+		this.__get__('stageBottom') + 10
+	    );
+	}
+
 	return true;
     },
 
-    // make a grid for chart
-    '__makeGrid__': function(){
-	var ybegin = this.__get__('height') - this.conf.stage.padding + (this.conf.grid.lineWidth / 2);
-	var xstep = (this.__get__('height') - (2 * this.conf.stage.padding)) / this.__get__('xvalues').length;
-
-	var xbegin = this.conf.stage.padding;
-	var ystep = (this.__get__('width') - (2 * this.conf.stage.padding)) / this.__get__('yvalues').length;
-	
+    // makes a grid for chart
+    '__makeGrid__': function(){	
 	this.canvas.lineWidth = this.conf.grid.lineWidth;
 	this.canvas.lineStyle = this.conf.grid.lineColor;
 	
@@ -157,11 +159,11 @@ Mitchart.prototype = {
 	    this.canvas.beginPath();
 	    this.canvas.moveTo(
 		this.conf.stage.padding,
-		ybegin - (x * xstep)
+		this.__get__('stageBottom') - (x * this.__get__('xstep'))
 	    );
 	    this.canvas.lineTo(
 		this.__get__('width') - this.conf.stage.padding,
-		ybegin - (x * xstep)
+		this.__get__('stageBottom') - (x * this.__get__('xstep'))
 	    );
 	    this.canvas.stroke();
 	    this.canvas.closePath();
@@ -171,12 +173,12 @@ Mitchart.prototype = {
 	for(var y = 0; y < this.__get__('yvalues').length + 1; y++){
 	    this.canvas.beginPath();
 	    this.canvas.moveTo(
-		xbegin + (y * ystep),
+		this.__get__('stageLeft') + (y * this.__get__('ystep')),
 		this.conf.stage.padding
 		
 	    );
 	    this.canvas.lineTo(
-		xbegin + (y * ystep),
+		this.__get__('stageLeft') + (y * this.__get__('ystep')),
 		this.__get__('height') - this.conf.stage.padding
 	    );
 	    this.canvas.stroke();
@@ -186,6 +188,7 @@ Mitchart.prototype = {
 	return true;
     },
 
+    // makes the chart according with type
     '__makeChart__': function(){
 	var type = this.__get__('type');
 	if(type == 'line'){
@@ -200,13 +203,11 @@ Mitchart.prototype = {
 	return true;
     },
 
+    // makes the line chart
     '__makeLineChart__': function(){
 	var data = this.__get__('yvalues');
-	var xbegin = this.conf.stage.padding;
-	var ybegin = this.__get__('height') - this.conf.stage.padding + (this.conf.grid.lineWidth / 2);
-	var ystep = (this.__get__('width') - (2 * this.conf.stage.padding)) / this.__get__('yvalues').length;
 	var stageHeight = this.__get__('height') - (2 * this.conf.stage.padding);
-	var color = 'rgb('+Math.floor(Math.random()*250)+','+Math.floor(Math.random()*250)+','+Math.floor(Math.random()*250)+')';
+	var color = this.__randomColor__();
 	
 
 	// draw data line
@@ -219,14 +220,14 @@ Mitchart.prototype = {
 	    var value = (data[x] * stageHeight) / this.__getMaxValue__();
 	    if(x == 0){
 		this.canvas.moveTo(
-		    xbegin,
-		    ybegin - value
+		    this.__get__('stageLeft'),
+		    this.__get__('stageBottom') - value
 		);
 	    } else {
 		
 		this.canvas.lineTo(
-		    xbegin + (x * ystep),
-		    ybegin - value
+		    this.__get__('stageLeft') + (x * this.__get__('ystep')),
+		    this.__get__('stageBottom') - value
 		);
 	    }
 	}
@@ -235,15 +236,17 @@ Mitchart.prototype = {
 
 
 	// draw points
+	this.canvas.lineWidth = this.conf.lines.lineWidth + 1;
+	this.canvas.fillStyle = this.conf.lines.ballFillColor;
+
 	for(var x = 0; x < data.length; x++){
 	    var value = (data[x] * stageHeight) / this.__getMaxValue__();
 	    this.canvas.beginPath();
 	    this.canvas.arc(
-		xbegin + (x * ystep),
-		ybegin - value,
-		3,0,Math.PI*2,true); // Outer circle  
+		this.__get__('stageLeft') + (x * this.__get__('ystep')),
+		this.__get__('stageBottom') - value,
+		3.5,0,Math.PI*2,true); // Outer circle  
 	    this.canvas.stroke(); 
-	    this.canvas.fillStyle = this.conf.lines.ballFillColor;
 	    this.canvas.fill();
 	    this.canvas.closePath;
 	}
@@ -251,8 +254,13 @@ Mitchart.prototype = {
 	return true;
     },
 
+    // makes the bar chart
     '__makeBarChart__': function(){
 	return true;
+    },
+
+    // returns a random color
+    '__randomColor__': function(){
+	return 'rgb('+Math.floor(Math.random()*250)+','+Math.floor(Math.random()*250)+','+Math.floor(Math.random()*250)+')';
     }
-    
 };
