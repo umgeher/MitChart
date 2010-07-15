@@ -213,6 +213,10 @@ Mitchart.prototype = {
 	// draw data line
 	this.canvas.lineWidth = this.conf.lines.lineWidth;
 	this.canvas.strokeStyle = color;
+	this.canvas.shadowOffsetX = 2;
+	this.canvas.shadowOffsetY = 1;
+	this.canvas.shadowBlur = 4;
+	this.canvas.shadowColor = 'rgba(0, 0, 0, 0.3)';
 	this.__getMaxValue__();
 	this.canvas.beginPath();
 	
